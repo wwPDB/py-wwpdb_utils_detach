@@ -2,13 +2,14 @@
 # File: SubProcessUtil.py
 # Date: 10-Feb-2015  J. Westbrook
 # #
-import sys
-import subprocess
-import time
-import os
-import stat
 import datetime
+import os
 import signal
+import stat
+import subprocess
+import sys
+import time
+
 
 class SubProcessUtil:
     """  Skeleton methods supporting running shell and python scripts as subprocesses.
@@ -41,7 +42,6 @@ class SubProcessUtil:
         process = subprocess.Popen(commandFilePath, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False, close_fds=True, preexec_fn=os.setsid)
         return process.pid
 
-
     def __wrapInShell(self, commandFilePath, commandString):
         """ Embed the input command string within a Bourne shell packaged in the
             input command file path.
@@ -55,7 +55,7 @@ class SubProcessUtil:
             st = os.stat(commandFilePath)
             os.chmod(commandFilePath, st.st_mode | stat.S_IEXEC)
             return True
-        except:
+        except Exception as e:
             return False
 
     def __runPyDetachedInShell(self, pythonFilePath, arguments="", stdoutFilePath=os.devnull, stderrFilePath=os.devnull):
@@ -92,6 +92,7 @@ class SubProcessUtil:
                 return None
         self.__lfh.write("+__runTimeout() completed with return code %r\n" % process.stdout.read())
         return 0
+
 
 if __name__ == "__main__":
     spu = SubProcessUtil(verbose=True, log=sys.stdout)

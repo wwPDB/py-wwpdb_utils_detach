@@ -7,13 +7,14 @@
 #
 ##
 
-import sys
-import os
-import time
 import atexit
-import psutil
-from signal import SIGTERM
+import os
+import sys
+import time
 from signal import SIGKILL
+from signal import SIGTERM
+
+import psutil
 
 
 class DetachedProcessBase(object):
@@ -131,7 +132,7 @@ class DetachedProcessBase(object):
                 return True
             else:
                 return False
-        except:
+        except Exception as e:
             try:
                 pid = self.__getPidFromFile()
                 #  Further check if the process id is active -
@@ -140,7 +141,7 @@ class DetachedProcessBase(object):
                 else:
                     return False
 
-            except:
+            except Exception as e:
                 pass
         return False
 
