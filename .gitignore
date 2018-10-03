@@ -1,0 +1,6 @@
+/.eggs/
+/.tox/
+/dist/
+/wwpdb.utils.detach.egg-info/
+*.pyc
+__pycache__
