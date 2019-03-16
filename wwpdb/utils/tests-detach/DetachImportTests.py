@@ -1,16 +1,10 @@
 ##
-# File: WebServiceImportTests.py
+# File: DetachImportTests.py
 # Date:  06-Oct-2018  E. Peisach
 #
 # Updates:
 ##
-"""Test cases for webservice - simply import everything to ensure imports work"""
-
-__docformat__ = "restructuredtext en"
-__author__ = "Ezra Peisach"
-__email__ = "peisach@rcsb.rutgers.edu"
-__license__ = "Creative Commons Attribution 3.0 Unported"
-__version__ = "V0.01"
+"""Test cases for DetachUtils - simply import everything to ensure imports work"""
 
 import unittest
 
