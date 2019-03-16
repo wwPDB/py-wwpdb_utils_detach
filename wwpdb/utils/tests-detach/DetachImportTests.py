@@ -8,7 +8,7 @@
 
 import unittest
 
-from wwpdb.utils.detach.DetachUtils import DetachUtils
+from wwpdb.utils.detach.DetachUtils import DetachUtils # noqa: F401
 from wwpdb.utils.detach.DetachedProcessBase import DetachedProcessBase
 from wwpdb.utils.detach.SubProcessUtil import SubProcessUtil
 
@@ -20,11 +20,9 @@ class ImportTests(unittest.TestCase):
     def testInstantiate(self):
         # Needs a reqobj
         #vc = DetachUtils()
-        vc = DetachedProcessBase()
-        vc = SubProcessUtil()
+        DetachedProcessBase()
+        SubProcessUtil()
+
 
 if __name__ == '__main__':
     unittest.main()
-
-
-    

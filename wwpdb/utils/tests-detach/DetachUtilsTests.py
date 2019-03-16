@@ -6,13 +6,14 @@
 ##
 """Test cases for DetachUtils functionality"""
 
-import sys
 import os
-import time
 import platform
+import sys
+import time
 import unittest
 
 from wwpdb.utils.detach.DetachUtils import DetachUtils
+
 try:
     from wwpdb.utils.session.WebRequest import InputRequest
     skiptest = False
