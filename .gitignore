@@ -104,4 +104,4 @@ venv.bak/
 .mypy_cache/
 
 # Tests output
-wwpdb/utils/tests-config/test-output
+wwpdb/utils/tests-detach/test-output
