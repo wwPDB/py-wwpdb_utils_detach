@@ -43,13 +43,10 @@ setup(
     #
     install_requires=['psutil'],
     packages=find_packages(exclude=['wwpdb.utils.tests-detach', 'examples', 'tests.*']),
-    #package_data={
-    #    # If any package contains *.md or *.rst ...  files, include them:
-    #    '': ['*.md', '*.rst', "*.txt", "*.cfg"],
-    #},
     #
     # These basic tests require no database services -
     test_suite="wwpdb.utils.tests-detach",
+    # If wwpdb.utils.session installed - get better testing though...
     tests_require=['tox'],
     #
     # Not configured ...
