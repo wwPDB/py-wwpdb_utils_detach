@@ -57,6 +57,12 @@ class DetachUtils(dict):
         sph = self.__setSemaphore()
         child_pid = os.fork()
         if child_pid == 0:
+            os.setsid()
+            sub_pid = os.fork()
+            if sub_pid:
+                # Parent of second fork
+                os._exit(0)
+
             sys.stdout = RedirectDevice()
             sys.stderr = RedirectDevice()
             os.setpgrp()
@@ -95,6 +101,7 @@ class DetachUtils(dict):
             #
             if (self.__verbose):
                 self.__lfh.write("+DetachUtils.__runDetach() PARENT COMPLETED parent process: pid# %s\n" % os.getpid())
+            os.waitpid(child_pid, 0)
             return True
 
     def semaphoreExists(self, semaphore='TMP_'):
