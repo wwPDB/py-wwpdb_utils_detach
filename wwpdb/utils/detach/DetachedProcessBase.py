@@ -90,8 +90,13 @@ class DetachedProcessBase(object):
         os.dup2(stdInFh.fileno(), sys.stdin.fileno())
         #
 
-        stdOutFh = open(self.__stdout, 'a+', 0)
-        stdErrFh = open(self.__stderr, 'a+', 0)
+        if sys.version_info[0] > 2:
+            # Unbuffered text i/o not allowed - binary mode - which is fine for logging
+            stdOutFh = open(self.__stdout, 'ab+', 0)
+            stdErrFh = open(self.__stderr, 'ab+', 0)
+        else:
+            stdOutFh = open(self.__stdout, 'a+', 0)
+            stdErrFh = open(self.__stderr, 'a+', 0)
         os.dup2(stdOutFh.fileno(), sys.stdout.fileno())
         os.dup2(stdErrFh.fileno(), sys.stderr.fileno())
 
