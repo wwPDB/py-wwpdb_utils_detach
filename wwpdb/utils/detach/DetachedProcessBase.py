@@ -25,8 +25,7 @@ class DetachedProcessBase(object):
         Subclass the base class run() method as desired.
     """
 
-    def __init__(self, pidFile='/tmp/DetachedProcessBase.pid', stdin=os.devnull, stdout=os.devnull, stderr=os.devnull, wrkDir='/',
-                 gid=None, uid=None):
+    def __init__(self, pidFile="/tmp/DetachedProcessBase.pid", stdin=os.devnull, stdout=os.devnull, stderr=os.devnull, wrkDir="/", gid=None, uid=None):
         self.__stdin = stdin
         self.__stdout = stdout
         self.__stderr = stderr
@@ -86,17 +85,17 @@ class DetachedProcessBase(object):
         #  constructor --
         sys.stdout.flush()
         sys.stderr.flush()
-        stdInFh = open(self.__stdin, 'r')
+        stdInFh = open(self.__stdin, "r")
         os.dup2(stdInFh.fileno(), sys.stdin.fileno())
         #
 
         if sys.version_info[0] > 2:
             # Unbuffered text i/o not allowed - binary mode - which is fine for logging
-            stdOutFh = open(self.__stdout, 'ab+', 0)
-            stdErrFh = open(self.__stderr, 'ab+', 0)
+            stdOutFh = open(self.__stdout, "ab+", 0)
+            stdErrFh = open(self.__stderr, "ab+", 0)
         else:
-            stdOutFh = open(self.__stdout, 'a+', 0)
-            stdErrFh = open(self.__stderr, 'a+', 0)
+            stdOutFh = open(self.__stdout, "a+", 0)
+            stdErrFh = open(self.__stderr, "a+", 0)
         os.dup2(stdOutFh.fileno(), sys.stdout.fileno())
         os.dup2(stdErrFh.fileno(), sys.stderr.fileno())
 
@@ -105,7 +104,8 @@ class DetachedProcessBase(object):
 
         # Store the process id for the detached process -
         pid = str(os.getpid())
-        open(self.__pidFile, 'w+').write("%s\n" % pid)
+        with open(self.__pidFile, "w+") as fout:
+            fout.write("%s\n" % pid)
 
     def _deletePidFile(self):
         """
@@ -119,7 +119,7 @@ class DetachedProcessBase(object):
         Internal method to read process id file and return the process id.
         """
         try:
-            pf = open(self.__pidFile, 'r')
+            pf = open(self.__pidFile, "r")
             pid = int(pf.read().strip())
             pf.close()
         except IOError:
@@ -131,13 +131,14 @@ class DetachedProcessBase(object):
              is active.
         """
         try:
+            # This old API was obsoleted with psutil 2.0.0
             pid = self.__getPidFromFile()
             #  Further check if the process id is active -
-            if pid in psutil.get_pid_list():
+            if pid in psutil.get_pid_list():  # pylint: disable=no-member
                 return True
             else:
                 return False
-        except Exception as e:
+        except Exception as e:  # noqa: F841  pylint: disable=unused-variable
             try:
                 pid = self.__getPidFromFile()
                 #  Further check if the process id is active -
@@ -146,7 +147,7 @@ class DetachedProcessBase(object):
                 else:
                     return False
 
-            except Exception as e:
+            except Exception as e:  # noqa: F841
                 pass
         return False
 
@@ -160,7 +161,7 @@ class DetachedProcessBase(object):
             os.setuid(uid)
             return True
         except Exception as e:
-            sys.stderr.write("+DetachedProcessBase.__setOwnerGroup failing  %d (%s)\n" % (e.errno, e.strerror))
+            sys.stderr.write("+DetachedProcessBase.__setOwnerGroup failing (%s)\n" % str(e))
         return False
 
     def start(self):
@@ -202,7 +203,7 @@ class DetachedProcessBase(object):
                 time.sleep(0.1)
         except Exception as err:
             err = str(err)
-            if ((err.find("No such process") != -1) or (err.find("no process found") != -1)):
+            if (err.find("No such process") != -1) or (err.find("no process found") != -1):
                 self._deletePidFile()
             else:
                 sys.stderr.write(str(err))
@@ -228,13 +229,12 @@ class DetachedProcessBase(object):
             for cPid in cPidList:
                 iPid = int(str(cPid.pid))
                 cp = psutil.Process(iPid)
-                msgList.append("+DetachedProcessBase.status(): child process id: %d  parent %d name %s (process group %d)\n" %
-                               (iPid, cp.ppid(), cp.name(), os.getpgid(pid)))
+                msgList.append("+DetachedProcessBase.status(): child process id: %d  parent %d name %s (process group %d)\n" % (iPid, cp.ppid(), cp.name(), os.getpgid(pid)))
 
         else:
             msgList.append("+DetachedProcessBase.status(): No active process is running.\n")
 
-        return ''.join(msgList)
+        return "".join(msgList)
 
     def run(self):
         """

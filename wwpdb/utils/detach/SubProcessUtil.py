@@ -20,7 +20,7 @@ class SubProcessUtil:
     def __init__(self, verbose=True, log=sys.stdout):
         self.__lfh = log
         self.__verbose = verbose
-        self.__wrkPath = '.'
+        self.__wrkPath = "."
 
     def runPythonDetached(self, pythonFilePath, arguments="", logFilePath="testlog.log"):
         return self.__runPyDetached(pythonFilePath=pythonFilePath, arguments=arguments, logFilePath=logFilePath)
@@ -33,13 +33,17 @@ class SubProcessUtil:
 
     def __runCommandDetached(self, commandString):
         self.__lfh.write("SubProcessUtil.__runCommandDetached() running command string:\n %r\n" % commandString)
-        pid = subprocess.Popen(commandString, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, close_fds=True, preexec_fn=os.setsid).pid
+        pid = subprocess.Popen(  # pylint: disable=subprocess-popen-preexec-fn
+            commandString, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, close_fds=True, preexec_fn=os.setsid
+        ).pid
         # pid = subprocess.Popen(commandString, stdout=None, stderr=None, shell=True, preexec_fn=os.setsid).pid
         return pid
 
     def __runCommandFileDetached(self, commandFilePath):
         self.__lfh.write("SubProcessUtil.__runProcessDetached() running command file %r\n" % commandFilePath)
-        process = subprocess.Popen(commandFilePath, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False, close_fds=True, preexec_fn=os.setsid)
+        process = subprocess.Popen(  # pylint: disable=subprocess-popen-preexec-fn
+            commandFilePath, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False, close_fds=True, preexec_fn=os.setsid
+        )
         return process.pid
 
     def __wrapInShell(self, commandFilePath, commandString):
@@ -47,7 +51,7 @@ class SubProcessUtil:
             input command file path.
         """
         try:
-            ofh = open(commandFilePath, 'w')
+            ofh = open(commandFilePath, "w")
             ofh.write("#!/bin/sh\n")
             ofh.write(commandString)
             ofh.write("\n#\n")
@@ -55,7 +59,7 @@ class SubProcessUtil:
             st = os.stat(commandFilePath)
             os.chmod(commandFilePath, st.st_mode | stat.S_IEXEC)
             return True
-        except Exception as e:
+        except Exception as e:  # noqa: F841 pylint: disable=unused-variable
             return False
 
     def __runPyDetachedInShell(self, pythonFilePath, arguments="", stdoutFilePath=os.devnull, stderrFilePath=os.devnull):
@@ -73,10 +77,12 @@ class SubProcessUtil:
 
         """
         start = datetime.datetime.now()
-        cmdfile = os.path.join(self.__wrkPath, 'timeoutscript.sh')
+        cmdfile = os.path.join(self.__wrkPath, "timeoutscript.sh")
         self.__wrapInShell(commandString, cmdfile)
         self.__lfh.write("+__runTimeout() running command %r\n" % cmdfile)
-        process = subprocess.Popen(cmdfile, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False, close_fds=True, preexec_fn=os.setsid)
+        process = subprocess.Popen(  # pylint: disable=subprocess-popen-preexec-fn
+            cmdfile, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False, close_fds=True, preexec_fn=os.setsid
+        )
         while process.poll() is None:
             time.sleep(0.1)
             now = datetime.datetime.now()
@@ -86,7 +92,7 @@ class SubProcessUtil:
                 os.waitpid(-1, os.WNOHANG)
                 self.__lfh.write("+ERROR __runTimeout() - Execution terminated by timeout %d (seconds)\n" % timeout)
                 if logPath is not None:
-                    ofh = open(logPath, 'a')
+                    ofh = open(logPath, "a")
                     ofh.write("+ERROR __runTimeout() Execution terminated by timeout %d (seconds)\n" % timeout)
                     ofh.close()
                 return None
@@ -94,9 +100,9 @@ class SubProcessUtil:
         return 0
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     spu = SubProcessUtil(verbose=True, log=sys.stdout)
-    pid = spu.runPythonDetached(pythonFilePath="testTask.py", arguments=" --logfile mylog.log", logFilePath="mylog.log")
-    sys.stdout.write("PROCESS ID = %d\n" % pid)
+    lpid = spu.runPythonDetached(pythonFilePath="testTask.py", arguments=" --logfile mylog.log", logFilePath="mylog.log")
+    sys.stdout.write("PROCESS ID = %d\n" % lpid)
     #
     #
