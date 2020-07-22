@@ -1,0 +1,3 @@
+psutil
+# For full testing. Not a requirement for package
+wwpdb.utils.session
