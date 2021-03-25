@@ -12,9 +12,9 @@ import time
 
 
 class SubProcessUtil:
-    """  Skeleton methods supporting running shell and python scripts as subprocesses.
+    """Skeleton methods supporting running shell and python scripts as subprocesses.
 
-         These methods are provided primarily to support testing other classes.
+    These methods are provided primarily to support testing other classes.
     """
 
     def __init__(self, verbose=True, log=sys.stdout):
@@ -26,8 +26,7 @@ class SubProcessUtil:
         return self.__runPyDetached(pythonFilePath=pythonFilePath, arguments=arguments, logFilePath=logFilePath)
 
     def __runPyDetached(self, pythonFilePath, arguments="", logFilePath="testlog.log"):
-        """
-        """
+        """"""
         commandString = "%s %s %s >> %s 2>&1" % (sys.executable, pythonFilePath, arguments, logFilePath)
         return self.__runCommandDetached(commandString)
 
@@ -47,8 +46,8 @@ class SubProcessUtil:
         return process.pid
 
     def __wrapInShell(self, commandFilePath, commandString):
-        """ Embed the input command string within a Bourne shell packaged in the
-            input command file path.
+        """Embed the input command string within a Bourne shell packaged in the
+        input command file path.
         """
         try:
             ofh = open(commandFilePath, "w")
@@ -63,8 +62,7 @@ class SubProcessUtil:
             return False
 
     def __runPyDetachedInShell(self, pythonFilePath, arguments="", stdoutFilePath=os.devnull, stderrFilePath=os.devnull):
-        """
-        """
+        """"""
         commandString = "python %s %s 1> %s 2> %s &" % (pythonFilePath, arguments, stdoutFilePath, stderrFilePath)
         ok = self.__wrapInShell("./test.sh", commandString)
         if ok:
@@ -73,9 +71,7 @@ class SubProcessUtil:
             return -1
 
     def __runTimeout(self, commandString, timeout, logPath=None):
-        """ Execute the input command string (sh semantics) as a subprocess with a timeout.
-
-        """
+        """Execute the input command string (sh semantics) as a subprocess with a timeout."""
         start = datetime.datetime.now()
         cmdfile = os.path.join(self.__wrkPath, "timeoutscript.sh")
         self.__wrapInShell(commandString, cmdfile)

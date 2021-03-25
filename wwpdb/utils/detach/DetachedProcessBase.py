@@ -20,9 +20,9 @@ import psutil
 class DetachedProcessBase(object):
 
     """
-        Base class for managing a detached process.
+    Base class for managing a detached process.
 
-        Subclass the base class run() method as desired.
+    Subclass the base class run() method as desired.
     """
 
     def __init__(self, pidFile="/tmp/DetachedProcessBase.pid", stdin=os.devnull, stdout=os.devnull, stderr=os.devnull, wrkDir="/", gid=None, uid=None):
@@ -127,8 +127,8 @@ class DetachedProcessBase(object):
         return pid
 
     def __isRunning(self):
-        """  Internal method to read the current process id and check if the process
-             is active.
+        """Internal method to read the current process id and check if the process
+        is active.
         """
         try:
             # This old API was obsoleted with psutil 2.0.0

@@ -23,9 +23,9 @@ import traceback
 
 
 class DetachUtils(dict):
-    """ Derived dictionary class supporting automatic initialization.
+    """Derived dictionary class supporting automatic initialization.
 
-        This will support pickle serialization/deserialization.
+    This will support pickle serialization/deserialization.
     """
 
     def __init__(self, reqObj=None, verbose=True, log=sys.stderr):  # pylint: disable=super-init-not-called
@@ -47,7 +47,7 @@ class DetachUtils(dict):
 
     def runDetach(self):
         """
-            Run the worker function as a detached process --
+        Run the worker function as a detached process --
         """
         #
         siteId = self.__reqObj.getValue("WWPDB_SITE_ID")
