@@ -26,7 +26,7 @@ class SubProcessUtil:
         return self.__runPyDetached(pythonFilePath=pythonFilePath, arguments=arguments, logFilePath=logFilePath)
 
     def __runPyDetached(self, pythonFilePath, arguments="", logFilePath="testlog.log"):
-        """"""
+        """ """
         commandString = "%s %s %s >> %s 2>&1" % (sys.executable, pythonFilePath, arguments, logFilePath)
         return self.__runCommandDetached(commandString)
 
@@ -62,7 +62,7 @@ class SubProcessUtil:
             return False
 
     def __runPyDetachedInShell(self, pythonFilePath, arguments="", stdoutFilePath=os.devnull, stderrFilePath=os.devnull):
-        """"""
+        """ """
         commandString = "python %s %s 1> %s 2> %s &" % (pythonFilePath, arguments, stdoutFilePath, stderrFilePath)
         ok = self.__wrapInShell("./test.sh", commandString)
         if ok:

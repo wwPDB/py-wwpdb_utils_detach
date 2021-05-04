@@ -89,7 +89,7 @@ class DetachUtilTest(unittest.TestCase):
         self.assertEqual(val, "OK", "")
 
     def testBadArg(self):
-        """Tests passing bad argument to set() """
+        """Tests passing bad argument to set()"""
         params = {"TopSessionPath": [self.__sessiontop]}
         reqobj = InputRequest(params)
 
