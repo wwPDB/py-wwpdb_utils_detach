@@ -33,7 +33,6 @@ class DetachUtils(dict):
         self.__lfh = log
         self.__reqObj = reqObj
         self.__sessionObj = self.__reqObj.getSessionObj()
-        self.__sessionId = self.__reqObj.getSessionId()
         self.__sessionPath = self.__sessionObj.getPath()
 
     def set(self, workerObj=None, workerMethod=None):
@@ -135,9 +134,10 @@ class DetachUtils(dict):
         fPathAbs = os.path.join(self.__sessionPath, semaphore + ".log")
         self.__cLog = open(fPathAbs, "w")  # pylint: disable=attribute-defined-outside-init
 
-    def __closeSemaphoreLog(self, semaphore="TMP_"):  # pylint: disable=unused-argument
-        self.__cLog.flush()
-        self.__cLog.close()
+    # This should be invoked in __del__ likely
+    # def __closeSemaphoreLog(self, semaphore="TMP_"):  # pylint: disable=unused-argument
+    #     self.__cLog.flush()
+    #     self.__cLog.close()
 
     def __postSemaphore(self, semaphore="TMP_", value="OK"):
         fPathAbs = os.path.join(self.__sessionPath, semaphore)
