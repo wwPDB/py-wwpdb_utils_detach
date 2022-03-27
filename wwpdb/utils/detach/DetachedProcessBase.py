@@ -147,7 +147,7 @@ class DetachedProcessBase(object):
                 else:
                     return False
 
-            except Exception as e:  # noqa: F841
+            except Exception as _e:  # noqa: F841
                 pass
         return False
 
