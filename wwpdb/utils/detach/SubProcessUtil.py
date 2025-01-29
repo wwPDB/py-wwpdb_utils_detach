@@ -18,7 +18,7 @@ class SubProcessUtil:
     These methods are provided primarily to support testing other classes.
     """
 
-    def __init__(self, verbose=True, log=sys.stdout):  # pylint: disable=unused-argument
+    def __init__(self, verbose=True, log=sys.stdout):  # noqa: ARG002 pylint: disable=unused-argument
         self.__lfh = log
         # self.__wrkPath = "."
 
@@ -27,13 +27,23 @@ class SubProcessUtil:
 
     def __runPyDetached(self, pythonFilePath, arguments="", logFilePath="testlog.log"):
         """ """
-        commandString = "%s %s %s >> %s 2>&1" % (sys.executable, pythonFilePath, arguments, logFilePath)
+        commandString = "%s %s %s >> %s 2>&1" % (
+            sys.executable,
+            pythonFilePath,
+            arguments,
+            logFilePath,
+        )
         return self.__runCommandDetached(commandString)
 
     def __runCommandDetached(self, commandString):
         self.__lfh.write("SubProcessUtil.__runCommandDetached() running command string:\n %r\n" % commandString)
         pid = subprocess.Popen(  # pylint: disable=subprocess-popen-preexec-fn
-            commandString, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, close_fds=True, preexec_fn=os.setsid
+            commandString,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            shell=True,  # noqa: S602
+            close_fds=True,
+            preexec_fn=os.setsid,  # noqa: S602, PLW1509
         ).pid
         # pid = subprocess.Popen(commandString, stdout=None, stderr=None, shell=True, preexec_fn=os.setsid).pid
         return pid
@@ -58,7 +68,7 @@ class SubProcessUtil:
     #         st = os.stat(commandFilePath)
     #         os.chmod(commandFilePath, st.st_mode | stat.S_IEXEC)
     #         return True
-    #     except Exception as e:  # noqa: F841 pylint: disable=unused-variable
+    #     except Exception as e:  # pylint: disable=unused-variable
     #         return False
 
     # def __runPyDetachedInShell(self, pythonFilePath, arguments="", stdoutFilePath=os.devnull, stderrFilePath=os.devnull):
@@ -98,7 +108,9 @@ class SubProcessUtil:
 
 if __name__ == "__main__":  # pragma: no cover
     spu = SubProcessUtil(verbose=True, log=sys.stdout)
-    lpid = spu.runPythonDetached(pythonFilePath="testTask.py", arguments=" --logfile mylog.log", logFilePath="mylog.log")
+    lpid = spu.runPythonDetached(
+        pythonFilePath="testTask.py",
+        arguments=" --logfile mylog.log",
+        logFilePath="mylog.log",
+    )
     sys.stdout.write("PROCESS ID = %d\n" % lpid)
-    #
-    #

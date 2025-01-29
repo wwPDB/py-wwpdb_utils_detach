@@ -23,7 +23,8 @@ jobs:
       vmImage: 'ubuntu-latest'
 
   variables:
-    - group: py-shared-variables
+    group: py-shared-variables
+    PIP_CACHE_DIR: $(Pipeline.Workspace)/.pip
 
   steps:
     #
@@ -68,6 +69,11 @@ jobs:
       - script: sudo apt-get install bison
         displayName: 'Install bison'
   #
+    - ${{ if and(contains(parameters.fixtures, 'graphviz'), startsWith(parameters.os, 'linux')) }}:
+      - bash: |
+          sudo apt-get install graphviz
+        displayName: 'Install graphviz'
+
     - ${{ if and(contains(parameters.fixtures, 'mysql'), startsWith(parameters.os, 'linux')) }}:
       - bash: |
           sudo apt-get install libmysqlclient-dev python-mysqldb
@@ -120,10 +126,19 @@ jobs:
     - script: "python -c \"import sys; print(sys.version); print(sys.executable)\""
       displayName: show python information
     #
-    - script: python -m pip install --upgrade pip tox
+    - script: python -m pip install --upgrade pip tox wheel
       displayName: 'Install tools'
       #
-    - script: pip install -r requirements.txt
+    - task: Cache@2
+      inputs:
+        key: 'python | "$(Agent.OS)" | requirements.txt'
+        restoreKeys: | 
+          python | "$(Agent.OS)"
+          python
+        path: $(PIP_CACHE_DIR)
+      displayName: Cache pip packages
+
+    - script: pip install -r requirements-test.txt
       displayName: 'Install dependencies'
     #
     - ${{ if startsWith(parameters.tox, 'py') }}:
@@ -165,23 +180,14 @@ jobs:
     #  Build artifacts if this is a test target (i.e. labeled as py##)
     #
     - ${{ if startsWith(parameters.tox, 'py') }}:
-      - script: pip install --upgrade pip twine setuptools wheel
+      - script: pip install --upgrade pip twine build wheel
         displayName: "Acquire build tools"
-      - script: python setup.py  sdist --dist-dir "$(System.DefaultWorkingDirectory)/dist"
-        displayName: "Build source dist"
-      - script: python setup.py  bdist_wheel --dist-dir "$(System.DefaultWorkingDirectory)/dist"
-        displayName: "Build wheel"
-    #
-      - script: python setup.py  sdist --dist-dir "$(System.DefaultWorkingDirectory)/udist"
-        displayName: "Build source dist"
-      #
+      - script: python -m build --outdir "$(System.DefaultWorkingDirectory)/dist"
+        displayName: "Build source distributions"
       # Check the install artifacts
-      - script: ls -lR "$(System.DefaultWorkingDirectory)/dist" "$(System.DefaultWorkingDirectory)/udist"
+      - script: ls -lR "$(System.DefaultWorkingDirectory)/dist"
         displayName: "Listing of installed software"
       #
       - publish: $(System.DefaultWorkingDirectory)/dist
         artifact: ${{ format('sw_{0}_{1}', parameters.tox, parameters.os) }}
-      #
-      - publish: $(System.DefaultWorkingDirectory)/udist
-        artifact: ${{ format('sw_u_{0}_{1}', parameters.tox, parameters.os) }}
       #

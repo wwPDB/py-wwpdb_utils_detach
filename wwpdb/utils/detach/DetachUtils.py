@@ -10,6 +10,7 @@
 Manage detached processes
 
 """
+
 __docformat__ = "restructuredtext en"
 __author__ = "John Westbrook"
 __email__ = "jwest@rcsb.rutgers.edu"
@@ -37,7 +38,7 @@ class DetachUtils(dict):
 
     def set(self, workerObj=None, workerMethod=None):
         try:
-            self.__logFunc = getattr(workerObj, "setLogHandle")  # pylint: disable=attribute-defined-outside-init
+            self.__logFunc = workerObj.setLogHandle  # pylint: disable=attribute-defined-outside-init
             self.__workerFunc = getattr(workerObj, workerMethod)  # pylint: disable=attribute-defined-outside-init
             return True
         except AttributeError:
@@ -48,7 +49,6 @@ class DetachUtils(dict):
         """
         Run the worker function as a detached process --
         """
-        #
         siteId = self.__reqObj.getValue("WWPDB_SITE_ID")
         if self.__verbose:
             self.__lfh.write("+DetachUtils.__runDetach() - STARTING\n")
@@ -73,14 +73,12 @@ class DetachUtils(dict):
             self.__openSemaphoreLog(sph)
             sys.stdout = self.__cLog
             sys.stderr = self.__cLog
-            #
             try:
                 self.__logFunc(log=self.__cLog)
 
                 if self.__verbose:
                     self.__cLog.write("+DetachUtils.__runDetach() Child Process: PID# %s\n" % os.getpid())
                     self.__cLog.write("+DetachUtils.__runDetach() Site id       %s\n" % siteId)
-                #
                 ok = self.__workerFunc()
 
                 if ok:
@@ -88,7 +86,7 @@ class DetachUtils(dict):
                 else:
                     self.__postSemaphore(sph, "FAIL")
                 self.__cLog.flush()
-            except Exception as e:  # noqa: F841 pylint: disable=unused-variable
+            except Exception as e:  # noqa: F841,BLE001 pylint: disable=unused-variable
                 traceback.print_exc(file=self.__cLog)
                 self.__cLog.write("+DetachUtils.__runDetach() Failing for child Process: PID# %s\n" % os.getpid())
                 self.__postSemaphore(sph, "FAIL")
@@ -105,23 +103,24 @@ class DetachUtils(dict):
 
     def semaphoreExists(self, semaphore="TMP_"):
         fPathAbs = os.path.join(self.__sessionPath, semaphore)
-        if os.access(fPathAbs, os.F_OK):
+        if os.access(fPathAbs, os.F_OK):  # noqa: SIM103
             return True
-        else:
-            return False
+        return False
 
     def getSemaphore(self, semaphore="TMP_"):
         fPathAbs = os.path.join(self.__sessionPath, semaphore)
         try:
-            fp = open(fPathAbs, "r")
+            fp = open(fPathAbs)
             lines = fp.readlines()
             fp.close()
             sval = lines[0][:-1]
-        except Exception as e:  # noqa: F841 pylint: disable=unused-variable
+        except Exception as e:  # noqa: F841,BLE001 pylint: disable=unused-variable
             sval = "FAIL"
 
         if self.__verbose:
-            self.__lfh.write("+DetachUtils.__getSemaphore() - checked %s in path %s returning %s \n" % (semaphore, fPathAbs, sval))
+            self.__lfh.write(
+                "+DetachUtils.__getSemaphore() - checked %s in path %s returning %s \n" % (semaphore, fPathAbs, sval)
+            )
 
         return sval
 
