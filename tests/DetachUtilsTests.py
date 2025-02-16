@@ -20,7 +20,7 @@ try:
     skiptest = False
 except ImportError:  # pragma: no cover
     # For PyCharm error handling
-    class InputRequest(object):
+    class InputRequest:  # type: ignore[no-redef]
         pass
 
     skiptest = True
@@ -47,14 +47,13 @@ class DetachUtilTest(unittest.TestCase):
             fout.write("Passed\n")
         return "Good"
 
-    def setLogHandle(self, log=sys.stderr):  # pylint: disable=unused-argument
+    def setLogHandle(self, log=sys.stderr):  # noqa: ARG002 pylint: disable=unused-argument
         """Reset the stream for logging output. Requirement for DetachUtils"""
         try:
             # self.__lfh = log  # pylint: disable=attribute-defined-outside-init
             return True
-        except IOError:
+        except OSError:
             return False
-        #
 
     def testRun(self):
         """Tests creation of a detached util"""
@@ -68,7 +67,7 @@ class DetachUtilTest(unittest.TestCase):
         self.assertTrue(ok)
         du.runDetach()
         sph = reqobj.getValue("semaphore")
-        print("Semaphore %s" % sph)
+        print("Semaphore %s" % sph)  # noqa: T201
 
         cntmax = 10
         cnt = 0
@@ -76,7 +75,7 @@ class DetachUtilTest(unittest.TestCase):
             if du.semaphoreExists(sph):
                 break
             time.sleep(1)
-            print("SLEEP %s" % cnt)
+            print("SLEEP %s" % cnt)  # noqa: T201
 
         self.assertNotEqual(cnt, cntmax - 1, "Count exceeded")
         self.assertTrue(du.semaphoreExists(sph), "Semaphore file missing")

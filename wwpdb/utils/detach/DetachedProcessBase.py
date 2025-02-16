@@ -11,21 +11,28 @@ import atexit
 import os
 import sys
 import time
-from signal import SIGKILL
-from signal import SIGTERM
+from signal import SIGKILL, SIGTERM
 
 import psutil
 
 
-class DetachedProcessBase(object):
-
+class DetachedProcessBase:
     """
     Base class for managing a detached process.
 
     Subclass the base class run() method as desired.
     """
 
-    def __init__(self, pidFile="/tmp/DetachedProcessBase.pid", stdin=os.devnull, stdout=os.devnull, stderr=os.devnull, wrkDir="/", gid=None, uid=None):
+    def __init__(
+        self,
+        pidFile="/tmp/DetachedProcessBase.pid",  # noqa: S108
+        stdin=os.devnull,
+        stdout=os.devnull,
+        stderr=os.devnull,
+        wrkDir="/",
+        gid=None,
+        uid=None,
+    ):
         self.__stdin = stdin
         self.__stdout = stdout
         self.__stderr = stderr
@@ -55,18 +62,16 @@ class DetachedProcessBase(object):
             sys.stderr.write("+DetachedProcessBase.__detachPrep(): Failing with %d (%s)\n" % (e.errno, e.strerror))
             sys.exit(1)
 
-        #
         os.chdir(self.__wrkDir)
         #
         # Certain privileges will be required to change owner and group -
         self.__setOwnerGroup(self.__uid, self.__gid)
-        #
         os.setsid()
         #
         #  Test for a sensible umask -
         #
         utest = os.umask(0o022)
-        if utest < 2:
+        if utest < 2:  # noqa: PLR2004
             os.umask(0o022)
         else:
             os.umask(utest)
@@ -85,11 +90,10 @@ class DetachedProcessBase(object):
         #  constructor --
         sys.stdout.flush()
         sys.stderr.flush()
-        stdInFh = open(self.__stdin, "r")
+        stdInFh = open(self.__stdin)
         os.dup2(stdInFh.fileno(), sys.stdin.fileno())
-        #
 
-        if sys.version_info[0] > 2:
+        if sys.version_info[0] > 2:  # noqa: PLR2004
             # Unbuffered text i/o not allowed - binary mode - which is fine for logging
             stdOutFh = open(self.__stdout, "ab+", 0)
             stdErrFh = open(self.__stderr, "ab+", 0)
@@ -119,10 +123,10 @@ class DetachedProcessBase(object):
         Internal method to read process id file and return the process id.
         """
         try:
-            pf = open(self.__pidFile, "r")
+            pf = open(self.__pidFile)
             pid = int(pf.read().strip())
             pf.close()
-        except IOError:
+        except OSError:
             pid = None
         return pid
 
@@ -134,24 +138,23 @@ class DetachedProcessBase(object):
             # This old API was obsoleted with psutil 2.0.0
             pid = self.__getPidFromFile()
             #  Further check if the process id is active -
-            if pid in psutil.get_pid_list():  # pylint: disable=no-member
+            if pid in psutil.get_pid_list():  # noqa: PLR2004 pylint: disable=no-member
                 return True
-            else:
-                return False
-        except Exception as e:  # noqa: F841  pylint: disable=unused-variable
+            return False
+        except Exception as e:  # noqa: F841,BLE001  pylint: disable=unused-variable
             try:
                 pid = self.__getPidFromFile()
                 #  Further check if the process id is active -
                 if pid in psutil.pids():
                     return True
-                else:
-                    return False
+                return False
 
-            except Exception as _e:  # noqa: F841
+            except Exception as _e:  # noqa: BLE001,S110,F841
                 pass
         return False
 
-    def __setOwnerGroup(self, uid, gid):
+    @staticmethod
+    def __setOwnerGroup(uid, gid):
         """
         Internal method to set the owner UID and GID of this process.  Requires a special privileges
         to change the uid/gid.
@@ -159,8 +162,8 @@ class DetachedProcessBase(object):
         try:
             os.setgid(gid)
             os.setuid(uid)
-            return True
-        except Exception as e:
+            return True  # noqa: TRY300
+        except Exception as e:  # noqa: BLE001
             sys.stderr.write("+DetachedProcessBase.__setOwnerGroup failing (%s)\n" % str(e))
         return False
 
@@ -169,7 +172,9 @@ class DetachedProcessBase(object):
         Start the application as detached process -
         """
         if self.__isRunning():
-            sys.stderr.write("+DetachedProcessBase.start(): Process file %s exists and process is running.\n" % self.__pidFile)
+            sys.stderr.write(
+                "+DetachedProcessBase.start(): Process file %s exists and process is running.\n" % self.__pidFile
+            )
             sys.exit(1)
 
         self.__detachPrep()
@@ -184,7 +189,6 @@ class DetachedProcessBase(object):
         """
         # Graceful suspend activity prior to the kill -
         self.suspend()
-        #
         pid = self.__getPidFromFile()
         if not pid:
             sys.stderr.write("+DetachedProcessBase.stop(): Process file %s does not exist.\n" % self.__pidFile)
@@ -201,7 +205,7 @@ class DetachedProcessBase(object):
                 os.killpg(os.getpgid(pid), SIGKILL)
                 os.kill(pid, SIGKILL)
                 time.sleep(0.1)
-        except Exception as err:
+        except Exception as err:  # noqa: BLE001
             err = str(err)
             if (err.find("No such process") != -1) or (err.find("no process found") != -1):
                 self._deletePidFile()
@@ -223,13 +227,18 @@ class DetachedProcessBase(object):
         msgList = []
         if self.__isRunning():
             pid = self.__getPidFromFile()
-            msgList.append("+DetachedProcessBase.status(): active process id is %d (process group %d)\n" % (pid, os.getpgid(pid)))
+            msgList.append(
+                "+DetachedProcessBase.status(): active process id is %d (process group %d)\n" % (pid, os.getpgid(pid))
+            )
             p = psutil.Process(pid)
             cPidList = p.children(recursive=True)
             for cPid in cPidList:
                 iPid = int(str(cPid.pid))
                 cp = psutil.Process(iPid)
-                msgList.append("+DetachedProcessBase.status(): child process id: %d  parent %d name %s (process group %d)\n" % (iPid, cp.ppid(), cp.name(), os.getpgid(pid)))
+                msgList.append(
+                    "+DetachedProcessBase.status(): child process id: %d  parent %d name %s (process group %d)\n"
+                    % (iPid, cp.ppid(), cp.name(), os.getpgid(pid))
+                )
 
         else:
             msgList.append("+DetachedProcessBase.status(): No active process is running.\n")
@@ -242,7 +251,7 @@ class DetachedProcessBase(object):
         start(), stop(), restart() and status() methods to manage the process.
         """
 
-    def suspend(self):
+    def suspend(self):  # noqa: PLR6301
         """
         This is an optional entry point to gracefully suspend the detached process before stopping/killing.
         Subclass this method in the worker class. This method will be called prior to the stop() method.

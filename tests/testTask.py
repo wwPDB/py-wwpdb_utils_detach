@@ -7,16 +7,21 @@
 # Part of the testing suite for the detached process utility class.
 #
 ##
-import time
-import sys
-import os
-from optparse import OptionParser  # pylint: disable=deprecated-module
 import logging
+import os
+import sys
+import time
+from optparse import OptionParser  # pylint: disable=deprecated-module
 
 
 def myTestTask(lfh, maxIterations=10, pauseSeconds=2):
     logger = logging.getLogger(__name__)
-    logger.info("+myTestTask STARTING with pid %d ppid %d and pgid %d\n", os.getpid(), os.getppid(), os.getpgid(os.getpid()))
+    logger.info(
+        "+myTestTask STARTING with pid %d ppid %d and pgid %d",
+        os.getpid(),
+        os.getppid(),
+        os.getpgid(os.getpid()),
+    )
 
     for i in range(maxIterations):
         time.sleep(pauseSeconds)
@@ -28,7 +33,7 @@ def myTestTask(lfh, maxIterations=10, pauseSeconds=2):
         sys.stdout.flush()
 
         sys.stderr.write("+myTestTask() sys.stderr now on iteration %d\n" % i)
-        logger.info("++myTestTask now on iteration %d", i)
+        logger.info("++myTestTask now on iteration %s", i)
 
     return i
 
@@ -36,9 +41,14 @@ def myTestTask(lfh, maxIterations=10, pauseSeconds=2):
 def main():
     usage = "usage: %prog [options]"
     parser = OptionParser(usage)
-    parser.add_option("--logfile", type="string", dest="logFilePath", help="Log file path - logfile.log")
+    parser.add_option(
+        "--logfile",
+        type="string",
+        dest="logFilePath",
+        help="Log file path - logfile.log",
+    )
 
-    (options, _args) = parser.parse_args()
+    (options, _args) = parser.parse_args()  # noqa: F841
 
     if options.logFilePath:
         lfh = open(options.logFilePath, "a")
