@@ -48,7 +48,7 @@ def main():
         help="Log file path - logfile.log",
     )
 
-    (options, args) = parser.parse_args()  # noqa: F841
+    (options, args) = parser.parse_args()  # noqa: F841,RUF059
 
     if options.logFilePath:
         lfh = open(options.logFilePath, "a")

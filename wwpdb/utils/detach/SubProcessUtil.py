@@ -5,6 +5,7 @@
 import os
 import subprocess
 import sys
+from typing import TextIO
 
 # import datetime
 # import signal
@@ -18,15 +19,18 @@ class SubProcessUtil:
     These methods are provided primarily to support testing other classes.
     """
 
-    def __init__(self, verbose=True, log=sys.stdout):  # noqa: ARG002 pylint: disable=unused-argument
+    def __init__(
+        self,
+        verbose: bool = True,  # noqa: ARG002, FBT001  pylint: disable=unused-argument
+        log: TextIO = sys.stdout,
+    ) -> None:
         self.__lfh = log
         # self.__wrkPath = "."
 
-    def runPythonDetached(self, pythonFilePath, arguments="", logFilePath="testlog.log"):
+    def runPythonDetached(self, pythonFilePath: str, arguments: str = "", logFilePath: str = "testlog.log") -> int:
         return self.__runPyDetached(pythonFilePath=pythonFilePath, arguments=arguments, logFilePath=logFilePath)
 
-    def __runPyDetached(self, pythonFilePath, arguments="", logFilePath="testlog.log"):
-        """ """
+    def __runPyDetached(self, pythonFilePath: str, arguments: str = "", logFilePath: str = "testlog.log") -> int:
         commandString = "%s %s %s >> %s 2>&1" % (
             sys.executable,
             pythonFilePath,
@@ -35,9 +39,9 @@ class SubProcessUtil:
         )
         return self.__runCommandDetached(commandString)
 
-    def __runCommandDetached(self, commandString):
+    def __runCommandDetached(self, commandString: str) -> int:
         self.__lfh.write("SubProcessUtil.__runCommandDetached() running command string:\n %r\n" % commandString)
-        pid = subprocess.Popen(  # pylint: disable=subprocess-popen-preexec-fn
+        pid = subprocess.Popen(  # noqa: S602 pylint: disable=subprocess-popen-preexec-fn
             commandString,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
@@ -51,7 +55,8 @@ class SubProcessUtil:
     # def __runCommandFileDetached(self, commandFilePath):
     #     self.__lfh.write("SubProcessUtil.__runProcessDetached() running command file %r\n" % commandFilePath)
     #     process = subprocess.Popen(  # pylint: disable=subprocess-popen-preexec-fn
-    #         commandFilePath, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False, close_fds=True, preexec_fn=os.setsid
+    #         commandFilePath, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False, close_fds=True,
+    #         preexec_fn=os.setsid
     #     )
     #     return process.pid
 
@@ -71,7 +76,9 @@ class SubProcessUtil:
     #     except Exception as e:  # pylint: disable=unused-variable
     #         return False
 
-    # def __runPyDetachedInShell(self, pythonFilePath, arguments="", stdoutFilePath=os.devnull, stderrFilePath=os.devnull):
+    # def __runPyDetachedInShell(
+    #     self, pythonFilePath, arguments="", stdoutFilePath=os.devnull, stderrFilePath=os.devnull
+    # ):
     #     """ """
     #     commandString = "python %s %s 1> %s 2> %s &" % (pythonFilePath, arguments, stdoutFilePath, stderrFilePath)
     #     ok = self.__wrapInShell("./test.sh", commandString)
