@@ -44,7 +44,11 @@ class SubProcessUtilTests(unittest.TestCase):
     def __waitForExit(pid: int, timeout: float = 20.0) -> bool:
         tEnd = time.time() + timeout
         while time.time() < tEnd:
-            rPid, _status = os.waitpid(pid, os.WNOHANG)
+            try:
+                rPid, _status = os.waitpid(pid, os.WNOHANG)
+            except ChildProcessError:  # pragma: no cover
+                # Already reaped by subprocess's own bookkeeping (Popen.__del__ / subprocess._cleanup)
+                return True
             if rPid == pid:
                 return True
             time.sleep(0.1)
