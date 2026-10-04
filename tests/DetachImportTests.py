@@ -17,7 +17,8 @@ class ImportTests(unittest.TestCase):
     def setUp(self):
         pass
 
-    def testInstantiate(self):
+    @staticmethod
+    def testInstantiate():
         # Needs a reqobj
         # vc = DetachUtils()
         DetachedProcessBase()

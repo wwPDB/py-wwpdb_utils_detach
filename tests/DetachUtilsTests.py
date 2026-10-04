@@ -47,7 +47,8 @@ class DetachUtilTest(unittest.TestCase):
             fout.write("Passed\n")
         return "Good"
 
-    def setLogHandle(self, log=sys.stderr):  # noqa: ARG002 pylint: disable=unused-argument
+    @staticmethod
+    def setLogHandle(log=sys.stderr):  # noqa: ARG002,ARG003,ARG004   pylint: disable=unused-argument
         """Reset the stream for logging output. Requirement for DetachUtils"""
         try:
             # self.__lfh = log  # pylint: disable=attribute-defined-outside-init

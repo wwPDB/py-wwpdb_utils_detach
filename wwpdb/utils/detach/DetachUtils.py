@@ -21,31 +21,44 @@ import os
 import sys
 import time
 import traceback
+from typing import Any, Callable, Dict, Optional, TextIO
 
 
-class DetachUtils(dict):
+class DetachUtils(Dict[str, Any]):  # noqa: FURB189
     """Derived dictionary class supporting automatic initialization.
 
     This will support pickle serialization/deserialization.
     """
 
-    def __init__(self, reqObj=None, verbose=True, log=sys.stderr):  # pylint: disable=super-init-not-called
+    __logFunc: Callable[..., Any]
+    __workerFunc: Callable[[], Any]
+    __cLog: TextIO
+
+    def __init__(  # pylint: disable=super-init-not-called
+        self,
+        reqObj: Any = None,
+        verbose: bool = True,  # noqa: FBT001
+        log: TextIO = sys.stderr,
+    ) -> None:
         self.__verbose = verbose
         self.__lfh = log
         self.__reqObj = reqObj
         self.__sessionObj = self.__reqObj.getSessionObj()
         self.__sessionPath = self.__sessionObj.getPath()
 
-    def set(self, workerObj=None, workerMethod=None):
+    def set(self, workerObj: Any = None, workerMethod: Optional[str] = None) -> bool:
         try:
             self.__logFunc = workerObj.setLogHandle  # pylint: disable=attribute-defined-outside-init
-            self.__workerFunc = getattr(workerObj, workerMethod)  # pylint: disable=attribute-defined-outside-init
+            self.__workerFunc = getattr(  # pylint: disable=attribute-defined-outside-init
+                workerObj,
+                workerMethod,  # type: ignore[arg-type]
+            )
             return True
         except AttributeError:
             self.__lfh.write("+DetachUtils.set() object/attribute error\n")
             return False
 
-    def runDetach(self):
+    def runDetach(self) -> bool:
         """
         Run the worker function as a detached process --
         """
@@ -101,13 +114,13 @@ class DetachUtils(dict):
             os.waitpid(child_pid, 0)
             return True
 
-    def semaphoreExists(self, semaphore="TMP_"):
+    def semaphoreExists(self, semaphore: str = "TMP_") -> bool:
         fPathAbs = os.path.join(self.__sessionPath, semaphore)
         if os.access(fPathAbs, os.F_OK):  # noqa: SIM103
             return True
         return False
 
-    def getSemaphore(self, semaphore="TMP_"):
+    def getSemaphore(self, semaphore: str = "TMP_") -> str:
         fPathAbs = os.path.join(self.__sessionPath, semaphore)
         try:
             fp = open(fPathAbs)
@@ -124,12 +137,12 @@ class DetachUtils(dict):
 
         return sval
 
-    def __setSemaphore(self):
+    def __setSemaphore(self) -> str:
         sVal = str(time.strftime("TMP_%Y%m%d%H%M%S", time.localtime()))
         self.__reqObj.setValue("semaphore", sVal)
         return sVal
 
-    def __openSemaphoreLog(self, semaphore="TMP_"):
+    def __openSemaphoreLog(self, semaphore: str = "TMP_") -> None:
         fPathAbs = os.path.join(self.__sessionPath, semaphore + ".log")
         self.__cLog = open(fPathAbs, "w")  # pylint: disable=attribute-defined-outside-init
 
@@ -138,7 +151,7 @@ class DetachUtils(dict):
     #     self.__cLog.flush()
     #     self.__cLog.close()
 
-    def __postSemaphore(self, semaphore="TMP_", value="OK"):
+    def __postSemaphore(self, semaphore: str = "TMP_", value: str = "OK") -> str:
         fPathAbs = os.path.join(self.__sessionPath, semaphore)
         fp = open(fPathAbs, "w")
         fp.write("%s\n" % value)
@@ -147,5 +160,5 @@ class DetachUtils(dict):
 
 
 class RedirectDevice:
-    def write(self, s):
+    def write(self, s: str) -> None:
         pass
