@@ -6,15 +6,13 @@
 ##
 """Test cases for DetachUtils using a stand-in request object (no wwpdb.utils.session dependency)"""
 
-from __future__ import annotations
-
 import io
 import os
 import shutil
 import tempfile
 import time
 import unittest
-from typing import IO
+from typing import Dict, Optional, TextIO
 
 from wwpdb.utils.detach.DetachUtils import DetachUtils, RedirectDevice
 
@@ -32,7 +30,7 @@ class FakeRequest:
 
     def __init__(self, sessionPath: str, siteId: str = "TESTSITE") -> None:
         self.__session = FakeSession(sessionPath)
-        self.__values: dict[str, str] = {"WWPDB_SITE_ID": siteId}
+        self.__values: Dict[str, str] = {"WWPDB_SITE_ID": siteId}
 
     def getSessionObj(self) -> FakeSession:
         return self.__session
@@ -49,9 +47,9 @@ class Worker:
 
     def __init__(self, outPath: str) -> None:
         self.__outPath = outPath
-        self.__log: IO[str] | None = None
+        self.__log: Optional[TextIO] = None
 
-    def setLogHandle(self, log: IO[str]) -> bool:
+    def setLogHandle(self, log: TextIO) -> bool:
         self.__log = log
         return True
 

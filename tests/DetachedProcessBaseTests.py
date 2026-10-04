@@ -6,8 +6,6 @@
 ##
 """Test cases for DetachedProcessBase"""
 
-from __future__ import annotations
-
 import contextlib
 import errno
 import io
@@ -19,7 +17,7 @@ import tempfile
 import time
 import unittest
 from signal import SIGKILL, SIGTERM
-from typing import Callable
+from typing import Callable, List, Tuple
 from unittest import mock
 
 import psutil
@@ -43,7 +41,7 @@ class RecordingProcess(DetachedProcessBase):
             uid=uid,
             gid=gid,
         )
-        self.calls: list[str] = []
+        self.calls: List[str] = []
 
     def run(self) -> None:
         self.calls.append("run")
@@ -155,7 +153,7 @@ class DetachedProcessBaseTests(unittest.TestCase):
 
     def __startInProcess(
         self, umask: int, setuidErr: bool = False
-    ) -> tuple[RecordingProcess, mock.MagicMock, mock.MagicMock, int]:
+    ) -> Tuple[RecordingProcess, mock.MagicMock, mock.MagicMock, int]:
         """Run start() in this process with the forking and descriptor redirection mocked out.
 
         Returns the process object, the stderr mock, the atexit.register mock, and the resulting umask.
@@ -328,7 +326,7 @@ class DetachedProcessLifecycleTests(unittest.TestCase):
 
         shutil.rmtree(self.__wrkDir, ignore_errors=True)
 
-    def __helper(self, action: str) -> subprocess.CompletedProcess[str]:
+    def __helper(self, action: str) -> "subprocess.CompletedProcess[str]":
         return subprocess.run(  # noqa: S603
             [sys.executable, HELPER, action, self.__pidFile, self.__marker, self.__wrkDir],
             capture_output=True,
